@@ -58,21 +58,37 @@ class CreditCard
 
   VALID_TYPES = [
     # use your CreditCardType class to create objects here with the appropriate regex
+    CreditCardType.new("VISA", /\A4(\d{12}|\d{15})\z/),
+    CreditCardType.new("MC",   /\A5[1-5]\d{14}\z/),
+    CreditCardType.new("DISC", /\A(6011\d{12}|65\d{14})\z/),
+    CreditCardType.new("DCCB", /\A30[0-5]\d{11}\z/),
+    CreditCardType.new("AMEX", /\A3[47]\d{13}\z/)
     
   ]
 
   # attr_readers go here...
+  attr_reader :number, :year, :month
 
   # constructor... (add in the appropriate arguments; see tests for clues on what is required
-  def initialize(  )
+  def initialize(number, year, month)
+    @number = number.to_s
+    @year = year
+    @month = month
+  end
+
+  def type
+    VALID_TYPES.detect { |type| type.match(@number)}
   end
 
   # other key methods
   def expired?
+    expiration = Date.new(@year, @month, -1)
+    expiration < Date.today
   end
 
   def valid?
     # to be valid, a card must not be expired and must be a legit type of card
+    !expired? && !type.nil?
   end
 end
 
